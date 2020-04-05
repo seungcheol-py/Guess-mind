@@ -1,3 +1,5 @@
+import { handleMessageNotify } from "./chat";
+
 const socket = io("/");
 
 // server.js의 io와 다른 io
@@ -13,11 +15,6 @@ function sendMessage(message) {
 
 function setNickname(nickname) {
   socket.emit("setNickname", { nickname });
-}
-
-function handleMessageNotify(data) {
-  const { message, nickname } = data;
-  console.log(`${nickname}: ${message}`);
 }
 
 socket.on("messageNotify", handleMessageNotify);
