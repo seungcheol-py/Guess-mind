@@ -16,6 +16,15 @@ const login = (nickname) => {
   initSocket(socket);
 };
 // 로그인 한 이후에 initSocket()이 작동하도록
+// To prevent notification "~~ just joined" when I refresh the page
+
+// const login = (nickname) => {
+//   const socket = io("/");
+//   socket.emit(events.notifyNickname, { nickname });
+//   initSocket(socket);
+// };
+
+// 새로고침하면 나오는 파란색 창을 없애기 위한 코드
 
 if (nickname === null) {
   body.className = LOGGED_OUT;
