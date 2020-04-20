@@ -3,6 +3,7 @@ import {
   hideCanvasControls,
   enableDrawing,
   showCanvasControls,
+  resetCanvas,
 } from "./paint";
 
 const board = document.getElementById("jsPlayerBoard");
@@ -39,4 +40,5 @@ export const handleEnding = () => {
   notif.innerText = "게임이 종료되었습니다.";
   preventDrawing();
   hideCanvasControls();
+  resetCanvas();
 };
