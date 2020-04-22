@@ -114,9 +114,9 @@ export const enableDrawing = () => {
   canvas.addEventListener("contextmenu", handleRightClick);
 };
 
-export const hideCanvasControls = () => (controls.style.opacity = 0);
+export const hideCanvasControls = () => (controls.style.display = "none");
 
-export const showCanvasControls = () => (controls.style.opacity = 1);
+export const showCanvasControls = () => (controls.style.display = "flex");
 
 if (canvas) {
   hideCanvasControls();

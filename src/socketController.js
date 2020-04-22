@@ -4,6 +4,8 @@ import { chooseWord } from "./words";
 let sockets = [];
 let progress = false;
 let painter = null;
+let word = null;
+let timeout = null;
 
 const choosePainter = () => sockets[Math.floor(Math.random() * sockets.length)];
 
@@ -14,19 +16,36 @@ const socketController = (socket, io) => {
   const sendPlayerUpdate = () =>
     superBroadcast(events.playerUpdate, { sockets });
   const startGame = () => {
-    if (progress === false) {
-      progress = true;
-      painter = choosePainter();
-      const word = chooseWord();
-      setTimeout(() => {
-        superBroadcast(events.startGame);
-        io.to(painter.id).emit(events.leaderNotif, { word });
-      }, 2000);
+    if (sockets.length >= 2) {
+      if (progress === false) {
+        progress = true;
+        clearTimeout(timeout);
+        painter = choosePainter();
+        word = chooseWord();
+        superBroadcast(events.startNotify);
+        setTimeout(() => {
+          superBroadcast(events.startGame);
+          io.to(painter.id).emit(events.leaderNotif, { word });
+        }, 3000);
+        timeout = setTimeout(endGame, 33000);
+      }
     }
   };
   const endGame = () => {
     progress = false;
     superBroadcast(events.ending);
+    setTimeout(() => startGame(), 5000);
+    clearTimeout(timeout);
+  };
+  const addPoints = (id) => {
+    sockets = sockets.map((socket) => {
+      if (socket.id === id) {
+        socket.points += 10;
+      }
+      return socket;
+    });
+    sendPlayerUpdate();
+    endGame();
   };
 
   socket.on(events.setNickname, ({ nickname }) => {
@@ -34,9 +53,7 @@ const socketController = (socket, io) => {
     socket.nickname = nickname;
     sockets.push({ id: socket.id, nickname, points: 0 });
     sendPlayerUpdate();
-    if (sockets.length >= 2) {
-      startGame();
-    }
+    startGame();
   });
 
   // socket.on(
@@ -56,9 +73,17 @@ const socketController = (socket, io) => {
     }
   });
 
-  socket.on(events.sendMessage, ({ message }) =>
-    broadcast(events.newMessage, { message, nickname: socket.nickname })
-  );
+  socket.on(events.sendMessage, ({ message }) => {
+    if (message === word) {
+      superBroadcast(events.newMessage, {
+        message: `${socket.nickname}!! 정답인 ${word} 맞추었습니다.`,
+        nickname: "운영자",
+      });
+      addPoints(socket.id);
+    } else {
+      broadcast(events.newMessage, { message, nickname: socket.nickname });
+    }
+  });
 
   socket.on(events.sendPath, ({ x, y }) =>
     broadcast(events.receivePath, { x, y })

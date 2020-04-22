@@ -30,3 +30,6 @@ export const handleNewMessage = ({ message, nickname }) => {
 if (messageForm) {
   messageForm.addEventListener("submit", handleForm);
 }
+
+export const preventChat = () => (messageForm.style.display = "none");
+export const enableChat = () => (messageForm.style.display = "flex");
